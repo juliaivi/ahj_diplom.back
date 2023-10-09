@@ -1,23 +1,19 @@
 const WebSocketServer = require('ws').Server;
 const WS = require('ws')
 
-function WebSocket({server}, userState, userName) {
-    console.log('ws 1')
-    console.log('ws 1' , userState)
-    console.log('ws 1', userName)
-    // let oldserver =null;
-    // let wsServer;
-    // if (oldserver == null || oldserver !== server ) {
-    //     oldserver = server}
-    const wsServer = new WebSocketServer({server}); 
-    
+function WebSocket({server}, userState, userName) {  // все нормально приходит
+    const wsServer = new WebSocketServer({noServer: true}); 
+    server.on('upgrade', function (request, socket, head) {
+        wsServer.handleUpgrade(request, socket, head, function (ws) {
+            wsServer.emit('connection', ws, request);
+        })
+      })
 
     const allMessages = [];
     let users = [];
     wsServer.on("connection", (ws) => {
-    console.log("connection")
     users.push({userName , ws})
-    console.log(users)// приходит 1 , а должен 2
+    console.log(users)// приходит 1,1 , а должен 1, 2. Обрывается тут и выбивает ошибку
 
 
     ws.on("message", (msg, isBinary) => {

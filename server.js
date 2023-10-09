@@ -14,8 +14,6 @@ const pub = path.join(__dirname, '/public');
 app.use(koaStatic(pub));
 const WebSocket = require('./WS');
 
-// const router = require('./routes')
-
 app.use(cors({
     origin: '*',
     credentials: true,
@@ -56,7 +54,6 @@ let userName = null;
         status: "ok",
         user: newUser,
       };
-// WebSocket.WebSocket({ server }, userState, userName);
       ctx.response.body = result;
       console.log('userName', userName)
       initializeWebSocket();
@@ -73,19 +70,13 @@ let userName = null;
 
   app.use(router.routes()).use(router.allowedMethods()) 
 
-// app.use(routes())
-
 const port = process.env.PORT || 3000;
 const server = http.createServer(app.callback());
 console.log('pusk', server)
 
-
 function initializeWebSocket() {
-console.log('userName11111111', userName)
-console.log('userState2222222', userState)
-
 WebSocket.WebSocket({ server }, userState, userName);
- 
-// server.listen(port);
+
 }
+
 server.listen(port); 
