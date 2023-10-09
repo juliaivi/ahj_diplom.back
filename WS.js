@@ -2,15 +2,26 @@ const WebSocketServer = require('ws').Server;
 const WS = require('ws')
 
 function WebSocket({server}, userState, userName) {
-    const wsServer = new WebSocketServer({server});
+    console.log('ws 1')
+    console.log('ws 1' , userState)
+    console.log('ws 1', userName)
+    // let oldserver =null;
+    // let wsServer;
+    // if (oldserver == null || oldserver !== server ) {
+    //     oldserver = server}
+    const wsServer = new WebSocketServer({server}); 
+    
+
     const allMessages = [];
     let users = [];
     wsServer.on("connection", (ws) => {
+    console.log("connection")
     users.push({userName , ws})
-    console.log(users)
+    console.log(users)// приходит 1 , а должен 2
 
 
     ws.on("message", (msg, isBinary) => {
+        console.log('msg')
         const receivedMSG = JSON.parse(msg);
         const obj = {
         message: receivedMSG,

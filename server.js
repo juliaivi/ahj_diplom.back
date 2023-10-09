@@ -43,7 +43,9 @@ let userName = null;
     }
     const { name } = ctx.request.body;
     const isExist = userState.find((user) => user.name === name);
+    userName = null;
     if (!isExist) { 
+      console.log('11')
       userName = name;
       const newUser = {
         id: uuidv4(),
@@ -56,7 +58,11 @@ let userName = null;
       };
 // WebSocket.WebSocket({ server }, userState, userName);
       ctx.response.body = result;
+      console.log('userName', userName)
+      initializeWebSocket();
+      
     } else {
+      console.log('22')
       const result = {
         status: "error",
         message: "This name is already taken!",
@@ -67,14 +73,19 @@ let userName = null;
 
   app.use(router.routes()).use(router.allowedMethods()) 
 
-// app.use(routes()) 
+// app.use(routes())
 
 const port = process.env.PORT || 3000;
 const server = http.createServer(app.callback());
-console.log('userName', userName)
-console.log('userState', userState)
+console.log('pusk', server)
+
+
+function initializeWebSocket() {
+console.log('userName11111111', userName)
+console.log('userState2222222', userState)
 
 WebSocket.WebSocket({ server }, userState, userName);
-
-
+ 
+// server.listen(port);
+}
 server.listen(port); 
