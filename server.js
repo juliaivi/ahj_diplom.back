@@ -1,91 +1,149 @@
+// Импорт необходимых модулей и библиотек
 const http = require('http');
-const path = require('path');
 const Koa = require('koa');
 const koaBody = require('koa-body').default;
 const cors = require('@koa/cors');
-const Router = require('koa-router');
-const { faker } = require('@faker-js/faker');
 const koaStatic = require('koa-static');
-const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+
+// Создание экземпляра Koa приложения
 const app = new Koa();
-const router = new Router(); 
-const pub = path.join(__dirname, '/public'); 
+
+// Импорт маршрутов из файла user-routes.js
+// const router = require('./routes/newUser/index');
+const router = require('./routes')
+
+// Установка пути к статическим файлам
+const pub = path.join(__dirname, '/public');
+
+// Импорт WebSocket сервера из файла websocket.js без использования
+const wsServer = require('./WS');
+
+// Настройка обработки статических файлов
 app.use(koaStatic(pub));
-const WebSocket = require('./WS');
 
-// const router = require('./routes')
-
+// Настройка CORS для обработки запросов из разных источников
 app.use(cors({
-    origin: '*',
-    credentials: true,
-    'Access-Control-Allow-Origin': true,
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  })
-)
+origin: '*',
+credentials: true,
+'Access-Control-Allow-Origin': true,
+allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+}));
 
+// Настройка обработки входящих данных (JSON, формы и другие)
 app.use(koaBody({
-   urlencoded: true,
-   multipart: true,
-   json: true, 
-  }));
+urlencoded: true,
+multipart: true,
+json: true,
+}));
 
-const userState = []; 
-let userName = null;
-
-  router.post("/new-user", async (ctx) => {
-    if (Object.keys(ctx.request.body).length === 0) {
-        const result = {
-        status: "error",
-        message: "This name is already taken!",
-      };
-      ctx.response.body = result;
-    }
-    const { name } = ctx.request.body;
-    const isExist = userState.find((user) => user.name === name);
-    userName = null;
-    if (!isExist) { 
-      console.log('11')
-      userName = name;
-      const newUser = {
-        id: uuidv4(),
-        name: name,
-      };
-      userState.push(newUser);
-      const result = {
-        status: "ok",
-        user: newUser,
-      };
-// WebSocket.WebSocket({ server }, userState, userName);
-      ctx.response.body = result;
-      console.log('userName', userName)
-      initializeWebSocket();
-      
-    } else {
-      console.log('22')
-      const result = {
-        status: "error",
-        message: "This name is already taken!",
-      };
-      ctx.response.body = result;
-    }
-  });
-
-  app.use(router.routes()).use(router.allowedMethods()) 
-
-// app.use(routes())
-
+// Определение порта сервера (3000 по умолчанию)
 const port = process.env.PORT || 3000;
+
+// Создание HTTP сервера с использованием Koa приложения
 const server = http.createServer(app.callback());
-console.log('pusk', server)
+
+// Подключение маршрутов из user-routes.js к Koa приложению
+// app.use(router.routes()).use(router.allowedMethods());
+
+app.use(router()) 
+
+// Запуск HTTP сервера на указанном порту
+server.listen(port);
+
+// Вывод сообщения о запуске сервера
+console.log('The server started on port', port);
 
 
-function initializeWebSocket() {
-console.log('userName11111111', userName)
-console.log('userState2222222', userState)
+//////////
+// const http = require('http');
+// const path = require('path');
+// const Koa = require('koa');
+// const koaBody = require('koa-body').default;
+// const cors = require('@koa/cors');
+// const Router = require('koa-router');
+// const { faker } = require('@faker-js/faker');
+// const koaStatic = require('koa-static');
+// const fs = require('fs');
+// const { v4: uuidv4 } = require('uuid');
+// const app = new Koa();
+// const router = new Router(); 
+// const pub = path.join(__dirname, '/public'); 
+// app.use(koaStatic(pub));
+// const WebSocket = require('./WS');
 
-WebSocket.WebSocket({ server }, userState, userName);
+// // const router = require('./routes')
+
+// app.use(cors({
+//     origin: '*',
+//     credentials: true,
+//     'Access-Control-Allow-Origin': true,
+//     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+//   })
+// )
+
+// app.use(koaBody({
+//    urlencoded: true,
+//    multipart: true,
+//    json: true, 
+//   }));
+
+// const userState = []; 
+// let userName = null;
+
+//   router.post("/new-user", async (ctx) => {
+//     if (Object.keys(ctx.request.body).length === 0) {
+//         const result = {
+//         status: "error",
+//         message: "This name is already taken!",
+//       };
+//       ctx.response.body = result;
+//     }
+//     const { name } = ctx.request.body;
+//     const isExist = userState.find((user) => user.name === name);
+//     userName = null;
+//     if (!isExist) { 
+//       console.log('11')
+//       userName = name;
+//       const newUser = {
+//         id: uuidv4(),
+//         name: name,
+//       };
+//       userState.push(newUser);
+//       const result = {
+//         status: "ok",
+//         user: newUser,
+//       };
+// // WebSocket.WebSocket({ server }, userState, userName);
+//       ctx.response.body = result;
+//       console.log('userName', userName)
+//       initializeWebSocket();
+      
+//     } else {
+//       console.log('22')
+//       const result = {
+//         status: "error",
+//         message: "This name is already taken!",
+//       };
+//       ctx.response.body = result;
+//     }
+//   });
+
+//   app.use(router.routes()).use(router.allowedMethods()) 
+
+// // app.use(routes())
+
+// const port = process.env.PORT || 3000;
+// const server = http.createServer(app.callback());
+// console.log('pusk', server)
+
+
+// function initializeWebSocket() {
+// console.log('userName11111111', userName)
+// console.log('userState2222222', userState)
+
+// WebSocket.WebSocket({ server }, userState, userName);
  
-// server.listen(port);
-}
-server.listen(port); 
+// // server.listen(port);
+// }
+// server.listen(port); 
