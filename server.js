@@ -54,7 +54,7 @@ let userName = null;
         status: "ok",
         user: newUser,
       };
-// WebSocket.WebSocket({ server }, userState, userName);
+// WebSocket.WebSocket({ server }, userState, userName); // если тут создает 1 одного персонажа и работает ленивая загрузка, но но нельзя создать второго персонажа
       ctx.response.body = result;
     } else {
       const result = {
@@ -67,14 +67,14 @@ let userName = null;
 
   app.use(router.routes()).use(router.allowedMethods()) 
 
-// app.use(routes()) 
+// app.use(routes())  это и стр.17 разкомитить если отсоединям router, а  router.postб строку 68, 12, 6 нужно закомитить
 
 const port = process.env.PORT || 3000;
 const server = http.createServer(app.callback());
 console.log('userName', userName)
 console.log('userState', userState)
 
-WebSocket.WebSocket({ server }, userState, userName);
+WebSocket.WebSocket({ server }, userState, userName); // если тут создает 2 отдельных персонажа, но не работает ленивая загрузка
 
 
 server.listen(port); 
