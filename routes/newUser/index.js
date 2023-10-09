@@ -30,7 +30,10 @@ if (Object.keys(ctx.request.body).length === 0) {
         };
   
         ctx.response.body = result;
-        WebSocketServer.WebS();
+        // WebSocketServer.WebSock(); не заходит и выбивает ошибку, что не функция
+        // WebSocketServer.WebSock; // заходит, но выдает ошибку ws
+
+        // WebSocketServer заходит, но выдает ошибку ws (если не оборачивать в функцию)
       } else {
         const result = {
           status: "error",

@@ -1,7 +1,7 @@
 const WS = require('ws');
 const { v4: uuidv4 } = require('uuid');
 
-function WebS() {
+function WebSock() {
 
 const WebSocketServer = new WS.Server({ noServer: true });
 
@@ -62,7 +62,7 @@ if (receivedMSG.type === "sendAll") {
 .forEach((o) => o.send(JSON.stringify(userState)));
 });
 }
-module.exports = WebS;
+module.exports = {WebSock};
 
 
 
