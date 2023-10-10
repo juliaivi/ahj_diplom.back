@@ -1,28 +1,16 @@
-const WebSocketServer = require('ws').Server;
 const WS = require('ws')
-
-function WebSocket({server}, userState, userName) {  // все нормально приходит
-   
-    const wsServer = new WebSocketServer({noServer: true}); 
-    let isUpgradeHandled = false;
-    server.on('upgrade', function (request, socket, head) {
-        if(!isUpgradeHandled) {
-            wsServer.handleUpgrade(request, socket, head, function (ws) {
-            wsServer.emit('connection', ws, request);
-        });
-        isUpgradeHandled = true;
-        }
-    })
-
+    
+function WebSocket(wsServer, userState, users, ws)  { 
     const allMessages = [];
-    let users = [];
+
     wsServer.on("connection", (ws) => {
-    users.push({userName , ws})
-    console.log(users)// приходит 1,1 , а должен 1, 2. Обрывается тут и выбивает ошибку
-
-
+        users.forEach((el) => {
+            if (el.ws == null) {
+                el.ws = ws;
+            }
+        })
+ 
     ws.on("message", (msg, isBinary) => {
-        console.log('msg')
         const receivedMSG = JSON.parse(msg);
         const obj = {
         message: receivedMSG,
@@ -34,7 +22,7 @@ function WebSocket({server}, userState, userName) {  // все нормальн�
         if (receivedMSG.type === "exit") {
         const idx = userState.findIndex(
             (user) => user.name === receivedMSG.name);
-        userState.splice(idx, 1);
+            userState.splice(idx, 1);
         [...wsServer.clients]
             .filter((o) => o.readyState === WS.OPEN)
             .forEach((o) => o.send(JSON.stringify(userState)));

@@ -12,7 +12,12 @@ const app = new Koa();
 const router = new Router(); 
 const pub = path.join(__dirname, '/public'); 
 app.use(koaStatic(pub));
+const WebSocketServer = require('ws').Server;
+
 const WebSocket = require('./WS');
+
+const Users = require('./Users');
+const users1 = new Users();
 
 app.use(cors({
     origin: '*',
@@ -28,8 +33,7 @@ app.use(koaBody({
    json: true, 
   }));
 
-const userState = []; 
-let userName = null;
+let ws = null;
 
   router.post("/new-user", async (ctx) => {
     if (Object.keys(ctx.request.body).length === 0) {
@@ -40,26 +44,20 @@ let userName = null;
       ctx.response.body = result;
     }
     const { name } = ctx.request.body;
-    const isExist = userState.find((user) => user.name === name);
-    userName = null;
+    const isExist = users1.userState.find((user) => user.name === name);
     if (!isExist) { 
-      console.log('11')
-      userName = name;
       const newUser = {
         id: uuidv4(),
         name: name,
       };
-      userState.push(newUser);
+      users1.adduserState(newUser);
       const result = {
         status: "ok",
         user: newUser,
       };
       ctx.response.body = result;
-      console.log('userName', userName)
-      initializeWebSocket();
-      
+      users1.addUsers({userName:name, ws})
     } else {
-      console.log('22')
       const result = {
         status: "error",
         message: "This name is already taken!",
@@ -72,11 +70,7 @@ let userName = null;
 
 const port = process.env.PORT || 3000;
 const server = http.createServer(app.callback());
-console.log('pusk', server)
-
-function initializeWebSocket() {
-WebSocket.WebSocket({ server }, userState, userName);
-
-}
+const wsServer = new WebSocketServer({server}); 
+WebSocket.WebSocket(wsServer, users1.userState, users1.users, ws)
 
 server.listen(port); 
