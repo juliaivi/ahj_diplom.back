@@ -2,12 +2,17 @@ const WebSocketServer = require('ws').Server;
 const WS = require('ws')
 
 function WebSocket({server}, userState, userName) {  // все нормально приходит
+   
     const wsServer = new WebSocketServer({noServer: true}); 
+    let isUpgradeHandled = false;
     server.on('upgrade', function (request, socket, head) {
-        wsServer.handleUpgrade(request, socket, head, function (ws) {
+        if(!isUpgradeHandled) {
+            wsServer.handleUpgrade(request, socket, head, function (ws) {
             wsServer.emit('connection', ws, request);
-        })
-      })
+        });
+        isUpgradeHandled = true;
+        }
+    })
 
     const allMessages = [];
     let users = [];
